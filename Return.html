@@ -1,0 +1,47 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+</head>
+<body>
+    <py-script>
+        import smtp_code as bird
+        import imaplib
+        from email.message import EmailMessage
+
+        username = 'alebig2006@gmail.com'
+        password = 'ofhy qcsc xznf sdvo'
+
+        imap_server = 'imap.gmail.com'
+
+        imap = imaplib.IMAP4_SSL(imap_server)
+        imap.login(username, password)
+
+        status, messages = imap.select("INBOX")
+        N = 1
+        messages = int(messages[0])
+
+        result, data = imap.fetch(str(messages), "(RFC822)")
+        raw_email = data[0][1]
+
+        email_message = email.message_from_bytes(raw_email)
+
+        email_body = ""
+        if email_message.is_multipart():
+            for part in email_message.walk():
+                if part.get_content_type() == "text/plain":
+                    email_body = part.get_payload(decode=True).decode("utf-8")
+        for part in email_message.walk():
+            if part.get_content_maintype() != "multipart" and part.get("Content-Disposition") is not None:
+                filename = part.get_filename()
+                if filename:
+                    with open(filename, "wb") as attachment_file:
+                        attachment_file.write(part.get_payload(decode=True))
+        imap.logout()
+        bird.Sendback_Email("alebig2006@gmail.com", attachment_file)
+    </py-script>
+    <script>
+        window.close()
+    </script>
+</body>
+</html>
